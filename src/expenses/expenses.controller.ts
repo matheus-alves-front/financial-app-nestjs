@@ -1,14 +1,20 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { Expense } from '@prisma/client'
+import { PrismaRelations } from 'src/prisma/relations.service';
 
 @Controller('expenses')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
+  constructor(private readonly expensesService: ExpensesService, private relation: PrismaRelations) {}
 
   @Post()
-  create(@Body() createExpense: Expense) {
-    return this.expensesService.createExpense(createExpense);
+  async create(@Body() createExpense: Expense) {
+    const expenseCreation = await this.expensesService.createExpense(createExpense); 
+    
+    await this.relation.addExpenseToActualMonth(expenseCreation)
+
+    // console.log(relation)
+    return expenseCreation
   }
 
   @Get()

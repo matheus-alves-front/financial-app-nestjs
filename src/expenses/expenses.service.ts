@@ -1,15 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MonthsService } from '../months/months.service';
 
 @Injectable()
 export class ExpensesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private monthService: MonthsService) {}
 
   async createExpense(expenseBody: Prisma.ExpenseCreateInput): Promise<Expense> {
-    return this.prisma.expense.create({
-      data: expenseBody,
+    await this.monthService.createMonth()
+
+    const {
+      name,
+      isEntry,
+      isFixed,
+      value
+    } = expenseBody
+
+    const createExpense = this.prisma.expense.create({
+      data: {
+        name,
+        isEntry,
+        isFixed,
+        value,
+      }
     });
+
+    return createExpense
   }
 
   findAll() {

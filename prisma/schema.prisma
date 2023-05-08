@@ -11,18 +11,27 @@ datasource db {
 }
 
 model Expense {
-  id          Int @id @default(autoincrement())
-  name        String
-  isFixed     Boolean
-  isEntry     Boolean
-  value       Float
-  month       MonthResume @relation(fields: [id], references: [id])
+  id      Int            @id @default(autoincrement())
+  name    String
+  isEntry Boolean
+  isFixed Boolean
+  value   Float
+  months  MonthExpense[]
 }
 
-model MonthResume {
-  id                Int @id @default(autoincrement())
-  month             String
-  expenses          Expense[]
-  totalExpenses     Float
-  totalAmount       Float
+model Month {
+  id              Int            @id @default(autoincrement())
+  month           Int
+  year            Int
+  totalExpenses   Float
+  totalAmountLeft Float
+  expenses        MonthExpense[]
+}
+
+model MonthExpense {
+  id        Int     @id @default(autoincrement())
+  expense   Expense @relation(fields: [expenseId], references: [id])
+  expenseId Int
+  month     Month   @relation(fields: [monthId], references: [id])
+  monthId   Int
 }
