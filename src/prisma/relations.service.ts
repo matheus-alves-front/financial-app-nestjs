@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Expense, MonthExpense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DateService } from 'src/utils/getDate.service';
 
 @Injectable()
 export class PrismaRelations {
@@ -18,17 +17,33 @@ export class PrismaRelations {
 
     const newMonthExpense = await this.prisma.monthExpense.create({
       data: {
-        expense: { connect: { id: expenseId } },
-        month: { connect: { id: monthId } },
+        expenseId,
+        monthId,
       },
     });
 
     return newMonthExpense
   }
 
-  findAll() {
-    return this.prisma.expense.findMany();
-  }
+  // async removeExpenseToMonth(expenseCreated: Expense): Promise<MonthExpense> {
+  //   const {id: monthId} = await this.prisma.month.findFirst({
+  //     orderBy: {
+  //       id: 'desc'
+  //     }
+  //   })
+
+  //   const {id: expenseId} = expenseCreated
+
+  //   const newMonthExpense = await this.prisma.monthExpense.create({
+  //     data: {
+  //       expense: { connect: { id: expenseId } },
+  //       month: { connect: { id: monthId } },
+  //     },
+  //   });
+
+  //   return newMonthExpense
+  // }
+
 
   findOne(id: number) {
     return `This action returns a #${id} expense`;

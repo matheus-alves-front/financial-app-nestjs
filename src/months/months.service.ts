@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { DateService } from 'src/utils/getDate.service';
 
 @Injectable()
 export class MonthsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private dateService: DateService) {}
 
   async createMonth() {
     const actualMonth = await this.prisma.month.findFirst({
@@ -12,9 +13,8 @@ export class MonthsService {
       }
     })
 
-    const date = new Date();
-    const month = date.getMonth();
-    const year = date.getFullYear()
+
+    const {year, month} = this.dateService.getDate()
 
     if (
       !actualMonth || 
@@ -25,9 +25,9 @@ export class MonthsService {
       await this.prisma.month.create({
         data: {
           month,
+          year,
           totalAmountLeft: 0,
-          totalExpenses: 0,
-          year
+          totalExpenses: 0
         }
       })
     } else console.log('não criou outro mes')
@@ -35,17 +35,5 @@ export class MonthsService {
 
   findAll() {
     return this.prisma.month.findMany();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} expense`;
-  }
-
-  update(id: number) {
-    return `This action updates a #${id} expense`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} expense`;
   }
 }

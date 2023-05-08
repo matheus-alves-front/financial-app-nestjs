@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MonthsService } from '../months/months.service';
+import path from 'path';
 
 @Injectable()
 export class ExpensesService {
@@ -29,19 +30,44 @@ export class ExpensesService {
     return createExpense
   }
 
-  findAll() {
-    return this.prisma.expense.findMany();
+  async findAll() {
+    return await this.prisma.expense.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} expense`;
+  async findOne(id: number) {
+    return await this.prisma.expense.findUnique({
+      where: {
+        id
+      }
+    });
   }
 
-  update(id: number) {
-    return `This action updates a #${id} expense`;
+  async update(id: number, updatedExpense: Prisma.ExpenseUpdateInput) {
+    const {
+      name,
+      value,
+      isEntry,
+      isFixed
+    } = await this.prisma.expense.findUnique({
+      where: {
+        id
+      }
+    })
+
+    return await this.prisma.expense.update({
+      where: {
+        id
+      },
+      data: {
+        name: updatedExpense.name || name,
+        value: updatedExpense.value || value,
+        isEntry: updatedExpense.isEntry || isEntry,
+        isFixed: updatedExpense.isFixed || isFixed
+      }
+    }); 
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} expense`;
   }
 }

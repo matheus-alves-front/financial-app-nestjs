@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
-import { Expense } from '@prisma/client'
+import { Expense, Prisma } from '@prisma/client'
 import { PrismaRelations } from 'src/prisma/relations.service';
 
 @Controller('expenses')
@@ -13,7 +13,6 @@ export class ExpensesController {
     
     await this.relation.addExpenseToActualMonth(expenseCreation)
 
-    // console.log(relation)
     return expenseCreation
   }
 
@@ -22,14 +21,20 @@ export class ExpensesController {
     return this.expensesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.expensesService.findOne(+id);
+  @Get('/:id')
+  async findOne(@Param('id') id: string) {
+    const idNumber = Number(id)
+
+    const expense = await this.expensesService.findOne(idNumber) 
+
+    return expense || 'Este Expense Não Existe'
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, ) {
-    return this.expensesService.update(+id);
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() expenseUpdated: Prisma.ExpenseUpdateInput) {
+    const idNumber = Number(id)
+
+    return await this.expensesService.update(idNumber, expenseUpdated);
   }
 
   @Delete(':id')
