@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MonthsService } from '../months/months.service';
-import path from 'path';
+import { ExpensesCalculatorService } from './expensesCalculator.service';
 
 @Injectable()
 export class ExpensesService {
-  constructor(private prisma: PrismaService, private monthService: MonthsService) {}
+  constructor(
+    private prisma: PrismaService, 
+    private monthService: MonthsService, 
+    private expensesCalc: ExpensesCalculatorService
+  ) {}
 
   async createExpense(expenseBody: Prisma.ExpenseCreateInput): Promise<Expense> {
     await this.monthService.createMonth()
@@ -31,7 +35,12 @@ export class ExpensesService {
   }
 
   async findAll() {
-    return await this.prisma.expense.findMany();
+    const expenses = await this.prisma.expense.findMany()
+    
+    console.log(this.expensesCalc.calcTotalExpenses(expenses))
+    console.log(this.expensesCalc.calcTotalEntryExpenses(expenses))
+    console.log(this.expensesCalc.calcTotalAmountLeft(expenses))
+    return expenses;
   }
 
   async findOne(id: number) {

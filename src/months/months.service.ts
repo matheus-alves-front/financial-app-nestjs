@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DateService } from 'src/utils/getDate.service';
 
@@ -12,7 +12,6 @@ export class MonthsService {
         id: 'desc'
       }
     })
-
 
     const {year, month} = this.dateService.getDate()
 
@@ -35,5 +34,43 @@ export class MonthsService {
 
   findAll() {
     return this.prisma.month.findMany();
+  }
+
+  async updateAmountLeft(@Param() totalAmountLeft: number) {
+    const {id: monthId} = await this.prisma.month.findFirst({
+      orderBy: {
+        id: 'desc'
+      }
+    })
+
+    const updatedMonth = await this.prisma.month.update({
+      where: {
+        id: monthId
+      },
+      data: {
+        totalAmountLeft
+      }
+    })
+
+    return updatedMonth
+  }
+
+  async updateTotalExpenses(@Param() totalExpenses: number) {
+    const {id: monthId} = await this.prisma.month.findFirst({
+      orderBy: {
+        id: 'desc'
+      }
+    })
+
+    const updatedMonth = await this.prisma.month.update({
+      where: {
+        id: monthId
+      },
+      data: {
+        totalExpenses
+      }
+    })
+
+    return updatedMonth
   }
 }
