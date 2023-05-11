@@ -28,8 +28,11 @@ export class MonthsService {
         data: {
           month,
           year,
-          totalAmountLeft: 0,
-          totalExpenses: 0
+          totalExpenses: 0, 
+          totalFixedExpenses: 0,
+          totalEntryExpenses: 0,
+          totalFixedEntryExpenses: 0,
+          totalAmountLeft: 0
         }
       })
     } else console.log('não criou outro mes')
@@ -58,7 +61,10 @@ export class MonthsService {
     return updatedMonth
   }
 
-  async updateTotalExpenses(@Param() totalExpenses: number) {
+  async updateTotalExpenses(@Param() 
+    totalExpenses: number, 
+    totalFixedExpenses: number
+  ) {
     const {id: monthId} = await this.prisma.month.findFirst({
       orderBy: {
         id: 'desc'
@@ -70,7 +76,31 @@ export class MonthsService {
         id: monthId
       },
       data: {
-        totalExpenses
+        totalExpenses,
+        totalFixedExpenses
+      }
+    })
+
+    return updatedMonth
+  }
+
+  async updateTotalEntryExpenses(@Param() 
+    totalEntryExpenses: number, 
+    totalFixedEntryExpenses: number
+  ) {
+    const {id: monthId} = await this.prisma.month.findFirst({
+      orderBy: {
+        id: 'desc'
+      }
+    })
+
+    const updatedMonth = await this.prisma.month.update({
+      where: {
+        id: monthId
+      },
+      data: {
+        totalEntryExpenses,
+        totalFixedEntryExpenses
       }
     })
 

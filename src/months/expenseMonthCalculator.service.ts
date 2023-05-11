@@ -69,8 +69,9 @@ export class ExpensesCalculatorService {
 
     const totalAmountLeft = this.calcTotalAmountLeft(expenses) 
     
+    await this.monthsService.updateTotalExpenses(totalExpenses, totalFixedExpenses)
+    await this.monthsService.updateTotalEntryExpenses(totalEntryExpenses, totalFixedEntryExpenses)
     await this.monthsService.updateAmountLeft(totalAmountLeft)
-    await this.monthsService.updateTotalExpenses(totalExpenses)
     
     const monthUpdatedData = {
       totalExpenses,

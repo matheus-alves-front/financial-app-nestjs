@@ -24,6 +24,9 @@ model Month {
   month           Int
   year            Int
   totalExpenses   Float
+  totalFixedExpenses   Float
+  totalEntryExpenses   Float
+  totalFixedEntryExpenses   Float
   totalAmountLeft Float
   expenses        MonthExpense[]
 }
@@ -31,7 +34,7 @@ model Month {
 model MonthExpense {
   id        Int     @id @default(autoincrement())
   expense   Expense @relation(fields: [expenseId], references: [id])
-  expenseId Int
+  expenseId Int     @unique
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
 }

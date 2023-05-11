@@ -88,7 +88,30 @@ export class ExpensesService {
     return expenseUpdated
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} expense`;
+  async remove(expenseId: number) {
+    const expense = await this.prisma.expense.findUnique({ where: { id: expenseId } })
+
+    if (!expense) {
+      throw new Error(`Expense com o ID ${expenseId} não encontrado.`)
+    }
+
+    // Encontra a relação MonthExpense associada ao registro de expense
+    const monthExpense = await this.prisma.monthExpense.findUnique({
+      where: {
+        expenseId: expenseId
+      }
+    })
+
+    if (monthExpense) {
+      await this.prisma.monthExpense.delete({ where: { id: monthExpense.id } })
+    }
+
+    await this.prisma.expense.delete({ where: { id: expenseId } })
+
+    const expenses = await this.prisma.expense.findMany()
+
+    await this.expensesCalc.updateMonthRepository(expenses)
+
+    return `${expense.name} foi Excluído`;
   }
 }
