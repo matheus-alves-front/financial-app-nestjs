@@ -4,6 +4,7 @@ import { PrismaRelations } from 'src/prisma/relations.service';
 import { DateService } from 'src/utils/getDate.service';
 import { MonthsService } from './months.service';
 import { MonthsController } from './months.controller';
+import { ExpensesCalculatorService } from './expenseMonthCalculator.service';
 
 @Module({
   controllers: [MonthsController],
@@ -11,7 +12,8 @@ import { MonthsController } from './months.controller';
     PrismaService, 
     PrismaRelations, 
     DateService,
-    MonthsService
+    MonthsService,
+    ExpensesCalculatorService
   ]
 })
 export class MonthsModule {}

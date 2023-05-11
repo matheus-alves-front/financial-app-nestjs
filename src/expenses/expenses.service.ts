@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
+
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MonthsService } from '../months/months.service';
-import { ExpensesCalculatorService } from './expensesCalculator.service';
+import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
 
 @Injectable()
 export class ExpensesService {
   constructor(
     private prisma: PrismaService, 
-    private monthService: MonthsService, 
+    private monthService: MonthsService,
     private expensesCalc: ExpensesCalculatorService
   ) {}
 
@@ -22,7 +23,7 @@ export class ExpensesService {
       value
     } = expenseBody
 
-    const createExpense = this.prisma.expense.create({
+    const createExpense = await this.prisma.expense.create({
       data: {
         name,
         isEntry,
@@ -31,15 +32,20 @@ export class ExpensesService {
       }
     });
 
+    const expenses = await this.prisma.expense.findMany()
+
+    await this.expensesCalc.updateMonthRepository(expenses)
+
     return createExpense
   }
 
   async findAll() {
+    await this.monthService.createMonth()
+
     const expenses = await this.prisma.expense.findMany()
     
-    console.log(this.expensesCalc.calcTotalExpenses(expenses))
-    console.log(this.expensesCalc.calcTotalEntryExpenses(expenses))
-    console.log(this.expensesCalc.calcTotalAmountLeft(expenses))
+    await this.expensesCalc.updateMonthRepository(expenses)
+
     return expenses;
   }
 
@@ -51,7 +57,7 @@ export class ExpensesService {
     });
   }
 
-  async update(id: number, updatedExpense: Prisma.ExpenseUpdateInput) {
+  async update(id: number, updateExpense: Prisma.ExpenseUpdateInput) {
     const {
       name,
       value,
@@ -63,17 +69,23 @@ export class ExpensesService {
       }
     })
 
-    return await this.prisma.expense.update({
+    const expenseUpdated = await this.prisma.expense.update({
       where: {
         id
       },
       data: {
-        name: updatedExpense.name || name,
-        value: updatedExpense.value || value,
-        isEntry: updatedExpense.isEntry || isEntry,
-        isFixed: updatedExpense.isFixed || isFixed
+        name: updateExpense.name || name,
+        value: updateExpense.value || value,
+        isEntry: updateExpense.isEntry || isEntry,
+        isFixed: updateExpense.isFixed || isFixed
       }
-    }); 
+    });
+
+    const expenses = await this.prisma.expense.findMany()
+    
+    await this.expensesCalc.updateMonthRepository(expenses)
+
+    return expenseUpdated
   }
 
   async remove(id: number) {

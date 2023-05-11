@@ -43,17 +43,4 @@ export class PrismaRelations {
 
   //   return newMonthExpense
   // }
-
-
-  findOne(id: number) {
-    return `This action returns a #${id} expense`;
-  }
-
-  update(id: number) {
-    return `This action updates a #${id} expense`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} expense`;
-  }
 }

@@ -1,8 +1,13 @@
 import { Injectable, Param } from "@nestjs/common";
 import { Expense } from "@prisma/client";
+import { MonthsService } from "./months.service";
 
 @Injectable()
 export class ExpensesCalculatorService {
+  constructor(
+    private monthsService: MonthsService
+  ) {}
+
   calcTotalExpenses(@Param() expenses: Expense[]) {
     let totalExpenses = 0
     let totalFixedExpenses = 0
@@ -51,5 +56,30 @@ export class ExpensesCalculatorService {
     return totalAmountLeft
   }
 
+  async updateMonthRepository(@Param() expenses: Expense[]) {
+    const {
+      totalExpenses, 
+      totalFixedExpenses
+    } = this.calcTotalExpenses(expenses)
+
+    const {
+      totalEntryExpenses, 
+      totalFixedEntryExpenses
+    } = this.calcTotalEntryExpenses(expenses)
+
+    const totalAmountLeft = this.calcTotalAmountLeft(expenses) 
     
+    await this.monthsService.updateAmountLeft(totalAmountLeft)
+    await this.monthsService.updateTotalExpenses(totalExpenses)
+    
+    const monthUpdatedData = {
+      totalExpenses,
+      totalFixedExpenses,
+      totalEntryExpenses,
+      totalFixedEntryExpenses,
+      totalAmountLeft
+    }
+
+    return monthUpdatedData
+  }
 }

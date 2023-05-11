@@ -4,7 +4,10 @@ import { DateService } from 'src/utils/getDate.service';
 
 @Injectable()
 export class MonthsService {
-  constructor(private prisma: PrismaService, private dateService: DateService) {}
+  constructor(
+    private prisma: PrismaService, 
+    private dateService: DateService,
+  ) {}
 
   async createMonth() {
     const actualMonth = await this.prisma.month.findFirst({

@@ -6,18 +6,18 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MonthsService } from '../months/months.service';
 import { PrismaRelations } from 'src/prisma/relations.service';
 import { DateService } from 'src/utils/getDate.service';
-import { ExpensesCalculatorService } from './expensesCalculator.service';
+import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
 
 @Module({
   imports: [PrismaClient],
   controllers: [ExpensesController],
   providers: [
-    ExpensesService, 
-    ExpensesCalculatorService,
+    ExpensesService,
     PrismaService, 
     MonthsService, 
     PrismaRelations, 
-    DateService
+    DateService,
+    ExpensesCalculatorService
   ]
 })
 export class ExpensesModule {}
