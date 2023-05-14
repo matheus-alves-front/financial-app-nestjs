@@ -5,15 +5,17 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MonthsService } from 'src/months/months.service';
 import { DateService } from 'src/utils/getDate.service';
 import { PrismaRelations } from 'src/prisma/relations.service';
+import { ProfileLoginService } from './profileLogin.service';
 
 @Module({
   controllers: [ProfileController],
   providers: [
     ProfileService, 
+    ProfileLoginService,
     PrismaService,
     MonthsService,
     DateService,
-    PrismaRelations
+    PrismaRelations,
   ]
 })
 export class ProfileModule {}
