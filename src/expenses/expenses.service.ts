@@ -14,7 +14,8 @@ export class ExpensesService {
       name,
       isEntry,
       isFixed,
-      value
+      value,
+      category
     } = expenseBody
 
     const createExpense = await this.prisma.expense.create({
@@ -23,6 +24,7 @@ export class ExpensesService {
         isEntry,
         isFixed,
         value,
+        category
       },
     });
 
@@ -64,7 +66,8 @@ export class ExpensesService {
       name,
       value,
       isEntry,
-      isFixed
+      isFixed,
+      category
     } = await this.prisma.expense.findUnique({
       where: {
         id
@@ -79,7 +82,8 @@ export class ExpensesService {
         name: updateExpense.name || name,
         value: updateExpense.value || value,
         isEntry: updateExpense.isEntry || isEntry,
-        isFixed: updateExpense.isFixed || isFixed
+        isFixed: updateExpense.isFixed || isFixed,
+        category: updateExpense.category || category
       }
     });
 

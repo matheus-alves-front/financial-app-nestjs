@@ -19,12 +19,13 @@ model Profile {
 }
 
 model Expense {
-  id      Int            @id @default(autoincrement())
-  name    String
-  isEntry Boolean
-  isFixed Boolean
-  value   Float
-  months  MonthExpense[]
+  id       Int            @id @default(autoincrement())
+  name     String
+  isEntry  Boolean
+  isFixed  Boolean
+  value    Float
+  category String
+  months   MonthExpense[]
 }
 
 model Month {
