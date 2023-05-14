@@ -15,9 +15,9 @@ import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.ser
     ExpensesService,
     PrismaService, 
     MonthsService, 
+    ExpensesCalculatorService,
     PrismaRelations, 
     DateService,
-    ExpensesCalculatorService
   ]
 })
 export class ExpensesModule {}

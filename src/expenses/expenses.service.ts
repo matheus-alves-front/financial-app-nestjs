@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
 
 @Injectable()
 export class ExpensesService {
   constructor(
-    private prisma: PrismaService, 
-    private expensesCalc: ExpensesCalculatorService
+    private prisma: PrismaService
   ) {}
 
   async createExpense(expenseBody: Prisma.ExpenseCreateInput): Promise<Expense> {
@@ -28,10 +26,6 @@ export class ExpensesService {
       },
     });
 
-    const expenses = await this.prisma.expense.findMany()
-
-    await this.expensesCalc.updateMonthRepository(expenses)
-
     return createExpense
   }
 
@@ -41,8 +35,7 @@ export class ExpensesService {
         profileId: profileId,
       },
       include: {
-        expense: true,
-        month: true,
+        expense: true
       },
     });
   
@@ -51,12 +44,19 @@ export class ExpensesService {
     return expenses;
   }
 
-  async findOne(id: number) {
-    return await this.prisma.expense.findUnique({
+  async findOne(id: number, profileId: number) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
       where: {
-        id
-      }
+        profileId: profileId,
+      },
+      include: {
+        expense: true
+      },
     });
+
+    const expenseId = monthExpenses.find(({expense}) => expense.id === id);
+
+    return expenseId || false;
   }
 
   async update(id: number, updateExpense: Prisma.ExpenseUpdateInput) {
@@ -83,10 +83,6 @@ export class ExpensesService {
       }
     });
 
-    const expenses = await this.prisma.expense.findMany()
-    
-    await this.expensesCalc.updateMonthRepository(expenses)
-
     return expenseUpdated
   }
 
@@ -109,10 +105,6 @@ export class ExpensesService {
     }
 
     await this.prisma.expense.delete({ where: { id: expenseId } })
-
-    const expenses = await this.prisma.expense.findMany()
-
-    await this.expensesCalc.updateMonthRepository(expenses)
 
     return `${expense.name} foi Excluído`;
   }

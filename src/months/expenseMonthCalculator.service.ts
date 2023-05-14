@@ -56,7 +56,7 @@ export class ExpensesCalculatorService {
     return totalAmountLeft
   }
 
-  async updateMonthRepository(@Param() expenses: Expense[]) {
+  async updateMonthRepository(@Param() expenses: Expense[], monthId: number) {
     const {
       totalExpenses, 
       totalFixedExpenses
@@ -69,9 +69,9 @@ export class ExpensesCalculatorService {
 
     const totalAmountLeft = this.calcTotalAmountLeft(expenses) 
     
-    await this.monthsService.updateTotalExpenses(totalExpenses, totalFixedExpenses)
-    await this.monthsService.updateTotalEntryExpenses(totalEntryExpenses, totalFixedEntryExpenses)
-    await this.monthsService.updateAmountLeft(totalAmountLeft)
+    await this.monthsService.updateTotalExpenses(monthId, totalExpenses, totalFixedExpenses)
+    await this.monthsService.updateTotalEntryExpenses(monthId, totalEntryExpenses, totalFixedEntryExpenses)
+    await this.monthsService.updateAmountLeft(monthId, totalAmountLeft)
     
     const monthUpdatedData = {
       totalExpenses,

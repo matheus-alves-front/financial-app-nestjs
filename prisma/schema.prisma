@@ -47,5 +47,5 @@ model MonthExpense {
   monthId   Int
 
   profile   Profile @relation(fields: [profileId], references: [id])
-  profileId Int     @unique
+  profileId Int
 }

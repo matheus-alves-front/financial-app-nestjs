@@ -55,17 +55,48 @@ export class MonthsService {
     } else return actualMonth
   }
 
-  findAll() {
-    return this.prisma.month.findMany();
-  }
-
-  async updateAmountLeft(@Param() totalAmountLeft: number) {
-    const {id: monthId} = await this.prisma.month.findFirst({
-      orderBy: {
-        id: 'desc'
+  async deleteMonth(monthId: number) {
+    return this.prisma.month.delete({
+      where: {
+        id: monthId
       }
     })
+  }
 
+  async findAll(profileId: number) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
+      where: {
+        profileId: profileId,
+      },
+      include: {
+        month: true
+      },
+    });
+  
+    const expenses = monthExpenses.map(({ month }) => month);
+
+    return expenses;
+  }
+
+  async findOne(id: number, profileId: number) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
+      where: {
+        profileId: profileId,
+      },
+      include: {
+        month: true
+      },
+    });
+
+    const month = monthExpenses.find(({month}) => month.id === id);
+
+    return month || false;
+  }
+
+  async updateAmountLeft( 
+    monthId: number, 
+    totalAmountLeft: number
+  ) {
     const updatedMonth = await this.prisma.month.update({
       where: {
         id: monthId
@@ -78,16 +109,11 @@ export class MonthsService {
     return updatedMonth
   }
 
-  async updateTotalExpenses(@Param() 
+  async updateTotalExpenses(
+    monthId: number,
     totalExpenses: number, 
     totalFixedExpenses: number
   ) {
-    const {id: monthId} = await this.prisma.month.findFirst({
-      orderBy: {
-        id: 'desc'
-      }
-    })
-
     const updatedMonth = await this.prisma.month.update({
       where: {
         id: monthId
@@ -101,16 +127,11 @@ export class MonthsService {
     return updatedMonth
   }
 
-  async updateTotalEntryExpenses(@Param() 
+  async updateTotalEntryExpenses(
+    monthId: number,
     totalEntryExpenses: number, 
     totalFixedEntryExpenses: number
   ) {
-    const {id: monthId} = await this.prisma.month.findFirst({
-      orderBy: {
-        id: 'desc'
-      }
-    })
-
     const updatedMonth = await this.prisma.month.update({
       where: {
         id: monthId

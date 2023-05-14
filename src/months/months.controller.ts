@@ -1,13 +1,20 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MonthsService } from './months.service';
 
 @Controller('profile/:profileId/months')
 export class MonthsController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private monthsService: MonthsService
+  ) {}
 
   @Get()
-  findAll() {
-    return this.prisma.month.findMany();
+  findAll(@Param('profileId') profileId: string) {
+    const profileIdNumber = Number(profileId)
+    const months = this.monthsService.findAll(profileIdNumber)
+
+    return months;
   }
 
   @Get('/:id')

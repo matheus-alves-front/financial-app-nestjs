@@ -9,11 +9,11 @@ import { ExpensesCalculatorService } from './expenseMonthCalculator.service';
 @Module({
   controllers: [MonthsController],
   providers: [
+    MonthsService,
+    ExpensesCalculatorService,
     PrismaService, 
     PrismaRelations, 
     DateService,
-    MonthsService,
-    ExpensesCalculatorService
   ]
 })
 export class MonthsModule {}
