@@ -37,6 +37,24 @@ export class PrismaRelations {
     return false
   }
 
+  async findAllDataFromProfile(profileId: number) {
+    const monthExpense = await this.prisma.monthExpense.findMany({
+      where: {
+        profileId
+      },
+      orderBy: {
+        monthId: 'desc'
+      },
+      include: {
+        expense: true,
+        month: true,
+        profile: true
+      }
+    })
+
+    return monthExpense
+  }
+
   // async removeExpenseToMonth(expenseCreated: Expense): Promise<MonthExpense> {
   //   const {id: monthId} = await this.prisma.month.findFirst({
   //     orderBy: {

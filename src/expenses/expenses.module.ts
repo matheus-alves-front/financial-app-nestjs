@@ -7,6 +7,7 @@ import { MonthsService } from '../months/months.service';
 import { PrismaRelations } from 'src/prisma/relations.service';
 import { DateService } from 'src/utils/getDate.service';
 import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Module({
   imports: [PrismaClient],
@@ -18,6 +19,7 @@ import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.ser
     ExpensesCalculatorService,
     PrismaRelations, 
     DateService,
+    ProfileService
   ]
 })
 export class ExpensesModule {}

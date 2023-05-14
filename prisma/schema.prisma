@@ -46,6 +46,6 @@ model MonthExpense {
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
 
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
 }

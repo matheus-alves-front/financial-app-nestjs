@@ -73,9 +73,18 @@ export class MonthsService {
       },
     });
   
-    const expenses = monthExpenses.map(({ month }) => month);
+    const months = monthExpenses.map(({ month }) => month);
 
-    return expenses;
+    const monthsArray = [];
+
+    months.forEach((item) => {
+      const exists = monthsArray.find((newItem) => newItem.id === item.id);
+      if (!exists) {
+        monthsArray.push(item);
+      }
+    });
+
+    return monthsArray;
   }
 
   async findOne(id: number, profileId: number) {

@@ -17,10 +17,12 @@ export class ProfileController {
   }
 
   @Get('/:id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     const idNumber = Number(id)
 
-    return this.profileService.findOne(idNumber);
+    const profile = await this.profileService.findOne(idNumber) 
+
+    return profile || 'Usuário Não Existe';
   }
 
   @Delete('/:id')

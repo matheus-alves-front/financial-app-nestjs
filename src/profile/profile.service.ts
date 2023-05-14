@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Profile } from '@prisma/client';
-import { MonthsService } from 'src/months/months.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaRelations } from 'src/prisma/relations.service';
 
 @Injectable()
 export class ProfileService {
   constructor(
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private prismaRelations: PrismaRelations
   ) {}
 
   async create(profileData: Profile) {
@@ -30,7 +31,7 @@ export class ProfileService {
       }
     }) 
     
-    return profile || 'Usuário Não existe';
+    return profile || false;
   }
 
   async updatePassword(id: number, newPassword: string) {
@@ -55,7 +56,43 @@ export class ProfileService {
     return profileUpdate;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} profile`;
+  async remove(id: number) {
+    const userData = await this.prismaRelations.findAllDataFromProfile(id) 
+    
+    const expensesId = userData.map(({expense}) => expense.id)
+    const monthsId = userData.map(({month}) => month.id)
+    
+    const uniqueExpensesId = expensesId.filter((value, index, self) => {
+      return self.indexOf(value) === index
+    })
+    
+    const uniqueMonthsId = monthsId.filter((value, index, self) => {
+      return self.indexOf(value) === index
+    })
+    
+    
+    await this.prisma.profile.delete({
+      where: {
+        id
+      }
+    })
+
+    await this.prisma.expense.deleteMany({
+      where: {
+        id: {
+          in: uniqueExpensesId
+        }
+      }
+    })
+
+    await this.prisma.month.deleteMany({
+      where: {
+        id: {
+          in: uniqueMonthsId
+        }
+      }
+    })
+
+    return 'Usuário removido';
   }
 }

@@ -4,6 +4,7 @@ import { Expense, Prisma } from '@prisma/client'
 import { PrismaRelations } from 'src/prisma/relations.service';
 import { MonthsService } from '../months/months.service';
 import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Controller('profile/:profileId/expenses')
 export class ExpensesController {
@@ -11,12 +12,17 @@ export class ExpensesController {
     private readonly expensesService: ExpensesService, 
     private relation: PrismaRelations,
     private monthService: MonthsService,
-    private expensesCalcService: ExpensesCalculatorService
+    private expensesCalcService: ExpensesCalculatorService,
+    private profileService: ProfileService
   ) {}
 
   @Post('/')
   async create(@Body() createExpense: Expense, @Param('profileId') profileId: string) {
     const profileIdNumber = Number(profileId)
+
+    const profileExists = await this.profileService.findOne(profileIdNumber)
+
+    if (!profileExists) return 'Usuário Não Existe'
 
     const {id: monthId} = await this.monthService.createMonth(profileIdNumber)
 
@@ -75,6 +81,7 @@ export class ExpensesController {
 
     const expense = await this.expensesService.findOne(idNumber, profileIdNumber) 
 
+    console.log('EXPENSE', expense)
     if (!expense) return 'Esse Expense Não Existe'
 
     const {id: monthId} = await this.monthService.createMonth(profileIdNumber)

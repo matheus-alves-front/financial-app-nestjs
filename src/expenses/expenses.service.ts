@@ -56,7 +56,7 @@ export class ExpensesService {
 
     const expenseId = monthExpenses.find(({expense}) => expense.id === id);
 
-    return expenseId || false;
+    return expenseId.expense || false;
   }
 
   async update(id: number, updateExpense: Prisma.ExpenseUpdateInput) {
