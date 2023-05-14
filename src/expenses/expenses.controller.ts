@@ -81,7 +81,6 @@ export class ExpensesController {
 
     const expense = await this.expensesService.findOne(idNumber, profileIdNumber) 
 
-    console.log('EXPENSE', expense)
     if (!expense) return 'Esse Expense Não Existe'
 
     const {id: monthId} = await this.monthService.createMonth(profileIdNumber)
