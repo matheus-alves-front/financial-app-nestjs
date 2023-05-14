@@ -2,20 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Expense, Prisma } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { MonthsService } from '../months/months.service';
 import { ExpensesCalculatorService } from 'src/months/expenseMonthCalculator.service';
 
 @Injectable()
 export class ExpensesService {
   constructor(
     private prisma: PrismaService, 
-    private monthService: MonthsService,
     private expensesCalc: ExpensesCalculatorService
   ) {}
 
   async createExpense(expenseBody: Prisma.ExpenseCreateInput): Promise<Expense> {
-    await this.monthService.createMonth()
-
     const {
       name,
       isEntry,
@@ -29,7 +25,7 @@ export class ExpensesService {
         isEntry,
         isFixed,
         value,
-      }
+      },
     });
 
     const expenses = await this.prisma.expense.findMany()
@@ -39,12 +35,18 @@ export class ExpensesService {
     return createExpense
   }
 
-  async findAll() {
-    await this.monthService.createMonth()
-
-    const expenses = await this.prisma.expense.findMany()
-    
-    await this.expensesCalc.updateMonthRepository(expenses)
+  async findAll(profileId: number) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
+      where: {
+        profileId: profileId,
+      },
+      include: {
+        expense: true,
+        month: true,
+      },
+    });
+  
+    const expenses = monthExpenses.map(({ expense }) => expense);
 
     return expenses;
   }

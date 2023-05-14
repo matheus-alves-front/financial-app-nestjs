@@ -10,6 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Profile {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  password String
+
+  monthExpense MonthExpense[]
+}
+
 model Expense {
   id      Int            @id @default(autoincrement())
   name    String
@@ -20,15 +28,15 @@ model Expense {
 }
 
 model Month {
-  id              Int            @id @default(autoincrement())
-  month           Int
-  year            Int
-  totalExpenses   Float
-  totalFixedExpenses   Float
-  totalEntryExpenses   Float
-  totalFixedEntryExpenses   Float
-  totalAmountLeft Float
-  expenses        MonthExpense[]
+  id                      Int            @id @default(autoincrement())
+  month                   Int
+  year                    Int
+  totalExpenses           Float
+  totalFixedExpenses      Float
+  totalEntryExpenses      Float
+  totalFixedEntryExpenses Float
+  totalAmountLeft         Float
+  expenses                MonthExpense[]
 }
 
 model MonthExpense {
@@ -37,4 +45,7 @@ model MonthExpense {
   expenseId Int     @unique
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
+
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int     @unique
 }

@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-@Controller('months')
+@Controller('profile/:profileId/months')
 export class MonthsController {
   constructor(private readonly prisma: PrismaService) {}
 

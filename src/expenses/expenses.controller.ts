@@ -1,28 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { Expense, Prisma } from '@prisma/client'
 import { PrismaRelations } from 'src/prisma/relations.service';
+import { MonthsService } from '../months/months.service';
 
-@Controller('expenses')
+@Controller('profile/:profileId/expenses')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService, private relation: PrismaRelations) {}
+  constructor(
+    private readonly expensesService: ExpensesService, 
+    private relation: PrismaRelations,
+    private monthService: MonthsService
+  ) {}
 
-  @Post()
-  async create(@Body() createExpense: Expense) {
+  @Post('/')
+  async create(@Body() createExpense: Expense, @Param('profileId') profileId: string) {
+    const profileIdNumber = Number(profileId)
+
+    const {id: monthId} = await this.monthService.createMonth(profileIdNumber)
+
     const expenseCreation = await this.expensesService.createExpense(createExpense); 
     
-    await this.relation.addExpenseToActualMonth(expenseCreation)
+    await this.relation.addExpenseToActualMonth(expenseCreation, profileIdNumber, monthId)
 
     return expenseCreation
   }
 
   @Get()
-  findAll() {
-    return this.expensesService.findAll();
+  findAll(@Param('profileId') profileId: string) {
+    const profileIdNumber = Number(profileId)
+
+    return this.expensesService.findAll(profileIdNumber);
   }
 
   @Get('/:id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('profileId') profileId: string, @Param('id') id: string) {
     const idNumber = Number(id)
 
     const expense = await this.expensesService.findOne(idNumber) 
@@ -30,14 +41,14 @@ export class ExpensesController {
     return expense || 'Este Expense Não Existe'
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() expenseUpdated: Prisma.ExpenseUpdateInput) {
+  @Put('/:id')
+  async update(@Param('profileId') profileId: string, @Param('id') id: string, @Body() expenseUpdated: Prisma.ExpenseUpdateInput) {
     const idNumber = Number(id)
 
     return await this.expensesService.update(idNumber, expenseUpdated);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   remove(@Param('id') id: string) {
     const idNumber = Number(id)
 
