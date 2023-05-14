@@ -75,16 +75,18 @@ export class MonthsService {
   
     const months = monthExpenses.map(({ month }) => month);
 
-    const monthsArray = [];
+    const monthsFiltered = [];
 
     months.forEach((item) => {
-      const exists = monthsArray.find((newItem) => newItem.id === item.id);
+      const exists = monthsFiltered.find((newItem) => newItem.id === item.id);
       if (!exists) {
-        monthsArray.push(item);
+        monthsFiltered.push(item);
       }
     });
 
-    return monthsArray;
+    monthsFiltered.sort((a, b) => b.id - a.id);
+
+    return monthsFiltered;
   }
 
   async findOne(id: number, profileId: number) {
