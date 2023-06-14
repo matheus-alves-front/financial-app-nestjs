@@ -61,8 +61,8 @@ model MonthExpense {
 
 model CategoryExpense {
   id        Int     @id @default(autoincrement())
-  expense   Expense @relation(fields: [expenseId], references: [id])
-  expenseId Int     @unique
+  expense   Expense? @relation(fields: [expenseId], references: [id])
+  expenseId Int?     @unique
   category     Category   @relation(fields: [categoryId], references: [id])
   categoryId   Int
 
