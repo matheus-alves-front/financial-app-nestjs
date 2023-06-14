@@ -16,6 +16,14 @@ model Profile {
   password String
 
   monthExpense MonthExpense[]
+  categoryExpense CategoryExpense[]
+}
+
+model Category {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+
+  categoryExpense  CategoryExpense[]
 }
 
 model Expense {
@@ -24,7 +32,7 @@ model Expense {
   isEntry  Boolean
   isFixed  Boolean
   value    Float
-  category String
+  category CategoryExpense[]
   months   MonthExpense[]
 }
 
@@ -46,6 +54,17 @@ model MonthExpense {
   expenseId Int     @unique
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
+
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId Int
+}
+
+model CategoryExpense {
+  id        Int     @id @default(autoincrement())
+  expense   Expense @relation(fields: [expenseId], references: [id])
+  expenseId Int     @unique
+  category     Category   @relation(fields: [categoryId], references: [id])
+  categoryId   Int
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
