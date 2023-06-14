@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Expense, MonthExpense } from '@prisma/client';
+import { CategoryExpense, Expense, MonthExpense } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -18,6 +18,18 @@ export class PrismaRelations {
     });
 
     return newMonthExpense
+  }
+
+  async addCategoryRelation(profileId: number, categoryName: string, expense?: Expense | null): Promise<CategoryExpense> {
+    const newCategoryExpense = await this.prisma.categoryExpense.create({
+      data: {
+        expenseId: expense ? expense.id : null,
+        categoryName,
+        profileId
+      },
+    });
+
+    return newCategoryExpense
   }
 
   async findMonthIdsByProfile(profileId: number) {

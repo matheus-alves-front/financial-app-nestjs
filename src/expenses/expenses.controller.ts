@@ -17,7 +17,7 @@ export class ExpensesController {
   ) {}
 
   @Post('/')
-  async create(@Body() createExpense: Expense, @Param('profileId') profileId: string) {
+  async create(@Body() createExpense: Partial<Expense> & { category: string }, @Param('profileId') profileId: string) {
     const profileIdNumber = Number(profileId)
 
     const profileExists = await this.profileService.findOne(profileIdNumber)
@@ -29,6 +29,7 @@ export class ExpensesController {
     const expenseCreation = await this.expensesService.createExpense(createExpense); 
     
     await this.relation.addExpenseToActualMonth(expenseCreation, profileIdNumber, monthId)
+    await this.relation.addCategoryRelation(profileIdNumber, createExpense.category, expenseCreation)
 
     const expenses = await this.expensesService.findAll(profileIdNumber)
 
