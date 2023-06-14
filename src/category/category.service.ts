@@ -30,6 +30,21 @@ export class CategoryService {
     return categoryCreated
   }
 
+  async findUniqueCategory(profileId: number, categoryName: string) {
+    const allCategoriesExpenses = await this.prisma.categoryExpense.findFirst({
+      where: {
+        profileId,
+        categoryName
+      },
+      select: {
+        category: true
+      },
+      distinct: ['categoryName']
+    })
+
+    return allCategoriesExpenses?.category || null
+  }
+
   async findAllCategories(profileId: number) {
     const allCategoriesExpenses = await this.prisma.categoryExpense.findMany({
       where: {
@@ -38,7 +53,7 @@ export class CategoryService {
       select: {
         category: true
       },
-      distinct: ['categoryId']
+      distinct: ['categoryName']
     })
 
     const categories = allCategoriesExpenses.map((item) => item.category);
@@ -75,5 +90,75 @@ export class CategoryService {
     }, []);
   
     return groupedCategoriesWithExpenses || false
+  }
+
+  async findUniqueCategoryWithExpenses(profileId: number, categoryName: string) {
+    const getAllCategoriesExpenses = await this.prisma.categoryExpense.findMany({
+      where: {
+        profileId,
+        categoryName
+      },
+      select: {
+        category: true,
+        expense: true
+      }
+    })
+
+    const groupedCategoriesWithExpenses = getAllCategoriesExpenses.reduce((acc, { category, expense }) => {
+      const existingCategory = acc.find((item) => item.id === category.id)
+  
+      if (existingCategory) {
+        existingCategory.expenses.push(expense)
+      } else {
+        const newCategory = {
+          id: category.id,
+          name: category.name,
+          expenses: [expense]
+        };
+        acc.push(newCategory)
+      }
+  
+      return acc
+    }, []);
+  
+    return groupedCategoriesWithExpenses || false
+  }
+
+  async deleteCategory(profileId: number, categoryName: string) {
+    const category = await this.prisma.category.findUnique({
+      where: {
+        name: categoryName
+      }
+    })
+
+    if (!category) {
+      throw new Error(`Category com o ID ${categoryName} não encontrado.`)
+    }
+
+    const categoryExpense = await this.prisma.categoryExpense.findMany({
+      where: {
+        profileId,
+        categoryName
+      }
+    })
+
+    if (categoryExpense.length > 1) {
+      return false
+    }
+    
+    await this.prisma.categoryExpense.deleteMany({
+      where: {
+        profileId,
+        categoryName
+      }
+    })
+
+    await this.prisma.category.delete({
+      where: {
+        name: categoryName
+      }
+    })
+
+    return true
   }
 }

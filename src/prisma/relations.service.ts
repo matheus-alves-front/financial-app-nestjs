@@ -20,11 +20,11 @@ export class PrismaRelations {
     return newMonthExpense
   }
 
-  async addCategoryRelation(profileId: number, categoryId: number, expense?: Expense | null): Promise<CategoryExpense> {
+  async addCategoryRelation(profileId: number, categoryName: string, expense?: Expense | null): Promise<CategoryExpense> {
     const newCategoryExpense = await this.prisma.categoryExpense.create({
       data: {
         expenseId: expense ? expense.id : null,
-        categoryId,
+        categoryName,
         profileId
       },
     });

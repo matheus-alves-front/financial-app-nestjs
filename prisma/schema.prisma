@@ -63,8 +63,8 @@ model CategoryExpense {
   id        Int     @id @default(autoincrement())
   expense   Expense? @relation(fields: [expenseId], references: [id])
   expenseId Int?     @unique
-  category     Category   @relation(fields: [categoryId], references: [id])
-  categoryId   Int
+  category     Category   @relation(fields: [categoryName], references: [name])
+  categoryName  String
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
