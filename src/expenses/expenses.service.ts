@@ -9,13 +9,12 @@ export class ExpensesService {
     private prisma: PrismaService
   ) {}
 
-  async createExpense(expenseBody: Prisma.ExpenseCreateInput): Promise<Expense> {
+  async createExpense(expenseBody: Partial<Expense> & { category: string }): Promise<Expense> {
     const {
       name,
       isEntry,
       isFixed,
-      value,
-      category
+      value
     } = expenseBody
 
     const createExpense = await this.prisma.expense.create({
@@ -103,6 +102,20 @@ export class ExpensesService {
 
     if (monthExpense) {
       await this.prisma.monthExpense.delete({ where: { id: monthExpense.id } })
+    }
+
+    const categoryExpense = await this.prisma.categoryExpense.findUnique({
+      where: {
+        expenseId: expenseId
+      }
+    })
+
+    if (categoryExpense) {
+      await this.prisma.categoryExpense.delete({
+        where: {
+          id: categoryExpense.id
+        }
+      })
     }
 
     await this.prisma.expense.delete({ where: { id: expenseId } })
