@@ -73,10 +73,14 @@ export class CategoryService {
     })
 
     const groupedCategoriesWithExpenses = getAllCategoriesExpenses.reduce((acc, { category, expense }) => {
-      const existingCategory = acc.find((item) => item.id === category.id)
-  
-      if (existingCategory) {
-        existingCategory.expenses.push(expense)
+      const existingCategory = acc.find((item) => {
+        item.expenses = item.expenses.filter((expense: Expense) => expense !== null);
+        return item.id === category.id
+      })
+     
+    
+      if (existingCategory && expense) {
+        if(expense) existingCategory.expenses.push(expense)
       } else {
         const newCategory = {
           id: category.id,
@@ -105,10 +109,14 @@ export class CategoryService {
     })
 
     const groupedCategoriesWithExpenses = getAllCategoriesExpenses.reduce((acc, { category, expense }) => {
-      const existingCategory = acc.find((item) => item.id === category.id)
-  
-      if (existingCategory) {
-        existingCategory.expenses.push(expense)
+      const existingCategory = acc.find((item) => {
+        item.expenses = item.expenses.filter((expense: Expense) => expense !== null);
+        return item.id === category.id
+      })
+     
+    
+      if (existingCategory && expense) {
+        if(expense) existingCategory.expenses.push(expense)
       } else {
         const newCategory = {
           id: category.id,
@@ -120,8 +128,8 @@ export class CategoryService {
   
       return acc
     }, []);
-  
-    return groupedCategoriesWithExpenses || false
+
+    return getAllCategoriesExpenses.length && groupedCategoriesWithExpenses || false
   }
 
   async deleteCategory(profileId: number, categoryName: string) {
