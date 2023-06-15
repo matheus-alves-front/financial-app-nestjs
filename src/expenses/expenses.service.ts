@@ -14,6 +14,8 @@ export class ExpensesService {
       name,
       isEntry,
       isFixed,
+      expiresInMonth,
+      expiresInYear,
       value
     } = expenseBody
 
@@ -22,6 +24,8 @@ export class ExpensesService {
         name,
         isEntry,
         isFixed,
+        expiresInMonth,
+        expiresInYear,
         value
       },
     });
@@ -37,6 +41,24 @@ export class ExpensesService {
       include: {
         expense: true
       },
+      distinct: ['expenseId']
+    });
+  
+    const expenses = monthExpenses.map(({ expense }) => expense);
+
+    return expenses;
+  }
+
+  async findAllActualMonthExpense(profileId: number, monthId: number) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
+      where: {
+        profileId,
+        monthId
+      },
+      include: {
+        expense: true
+      },
+      distinct: ['expenseId']
     });
   
     const expenses = monthExpenses.map(({ expense }) => expense);
@@ -94,14 +116,14 @@ export class ExpensesService {
     }
 
     // Encontra a relação MonthExpense associada ao registro de expense
-    const monthExpense = await this.prisma.monthExpense.findUnique({
+    const monthExpense = await this.prisma.monthExpense.findMany({
       where: {
         expenseId: expenseId
-      }
+      },
     })
 
-    if (monthExpense) {
-      await this.prisma.monthExpense.delete({ where: { id: monthExpense.id } })
+    if (monthExpense.length > 0) {
+      await this.prisma.monthExpense.deleteMany({ where: { expenseId } })
     }
 
     const categoryExpense = await this.prisma.categoryExpense.findUnique({
