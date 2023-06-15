@@ -15,7 +15,7 @@ export class MonthsService {
     const monthId = await this.prismaRelations.findMonthIdsByProfile(profileId)
 
     const {year, month} = this.dateService.getDate()
-    
+
     if (!monthId) {
       return await this.prisma.month.create({
           data: {
@@ -30,9 +30,12 @@ export class MonthsService {
       })
     }
     
-    const actualMonth = await this.prisma.month.findUnique({
+    const {month: actualMonth} = await this.prisma.monthExpense.findFirst({
       where: {
-        id: monthId
+        monthId
+      },
+      select: {
+        month: true
       }
     })
 
@@ -41,7 +44,7 @@ export class MonthsService {
       actualMonth.month !== month ||
       actualMonth.year !== year  
       ) {
-      return await this.prisma.month.create({
+      const newActualMonth = await this.prisma.month.create({
         data: {
           month,
           year,
@@ -52,7 +55,30 @@ export class MonthsService {
           totalAmountLeft: 0
         }
       })
-    } else return actualMonth
+
+      const { 
+        id: newMonthId,
+        month: newMonthDate,
+        year: newMonthYear 
+      } = newActualMonth
+
+      const actualDate = {
+        month: newMonthDate,
+        year: newMonthYear
+      }
+      
+      const fixedExpensesToadd = await this.prismaRelations.getFixedMonthExpensesToAddNewMonth(
+        profileId,
+        monthId,
+        newMonthId,
+        actualDate
+      )
+
+      await this.prismaRelations.addFixedMonthExpensesToNewMonth(fixedExpensesToadd)
+    
+      return newActualMonth
+    } 
+    else return actualMonth
   }
 
   async deleteMonth(monthId: number) {

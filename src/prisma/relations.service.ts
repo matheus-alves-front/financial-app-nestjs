@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { CategoryExpense, Expense, MonthExpense } from '@prisma/client';
+import { CategoryExpense, Expense, MonthExpense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PrismaRelations {
   constructor(private prisma: PrismaService) {}
 
-  async addExpenseToActualMonth(expenseCreated: Expense, profileId: number, monthId: number): Promise<MonthExpense> {
+  async addExpenseToActualMonth(
+    expenseCreated: Expense, 
+    profileId: number, 
+    monthId: number
+  ): Promise<MonthExpense> {
     const {id: expenseId} = expenseCreated
 
     const newMonthExpense = await this.prisma.monthExpense.create({
@@ -18,6 +22,65 @@ export class PrismaRelations {
     });
 
     return newMonthExpense
+  }
+
+  async getFixedMonthExpensesToAddNewMonth(
+    profileId: number, 
+    monthId: number, 
+    newMonthId: number,
+    actualDate: {
+      month: number,
+      year: number
+    }
+  ) {
+    const monthExpenses = await this.prisma.monthExpense.findMany({
+      where: {
+        monthId
+      },
+      select: {
+        expense: true,
+        month: true
+      },
+      distinct: ['expenseId']
+    })
+
+    const monthExpensesFixedData = []
+
+    if (monthExpenses.length > 0) {
+      for (let i = 0; i < monthExpenses.length; i++) {
+        if (
+          monthExpenses[i].expense.isFixed &&
+          monthExpenses[i].expense.expiresInMonth >= actualDate.month && 
+          monthExpenses[i].expense.expiresInYear >= actualDate.year
+        ) {
+          const expenseId = monthExpenses[i].expense.id
+          const monthExpensesFormat = {
+            expenseId,
+            monthId: newMonthId,
+            profileId
+          }
+  
+          monthExpensesFixedData.push(monthExpensesFormat)        
+        }
+      }
+    }
+
+    return monthExpensesFixedData
+  }
+
+  async addFixedMonthExpensesToNewMonth(monthExpensesArray: Omit<MonthExpense, 'id'>[]) {
+    if (monthExpensesArray.length < 1) {
+      return
+    }
+
+    const resolveLoopCreationMonthExpense = monthExpensesArray.map(async (monthExpense) => {
+      await this.prisma.monthExpense.create({
+        data: monthExpense
+      });
+    });
+  
+    await Promise.all(resolveLoopCreationMonthExpense);
+    return monthExpensesArray
   }
 
   async addCategoryRelation(profileId: number, categoryName: string, expense?: Expense | null): Promise<CategoryExpense> {
@@ -66,23 +129,4 @@ export class PrismaRelations {
 
     return monthExpense
   }
-
-  // async removeExpenseToMonth(expenseCreated: Expense): Promise<MonthExpense> {
-  //   const {id: monthId} = await this.prisma.month.findFirst({
-  //     orderBy: {
-  //       id: 'desc'
-  //     }
-  //   })
-
-  //   const {id: expenseId} = expenseCreated
-
-  //   const newMonthExpense = await this.prisma.monthExpense.create({
-  //     data: {
-  //       expense: { connect: { id: expenseId } },
-  //       month: { connect: { id: monthId } },
-  //     },
-  //   });
-
-  //   return newMonthExpense
-  // }
 }

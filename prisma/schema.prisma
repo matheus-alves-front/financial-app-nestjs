@@ -15,25 +15,27 @@ model Profile {
   name     String @unique
   password String
 
-  monthExpense MonthExpense[]
+  monthExpense    MonthExpense[]
   categoryExpense CategoryExpense[]
 }
 
 model Category {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
-  categoryExpense  CategoryExpense[]
+  categoryExpense CategoryExpense[]
 }
 
 model Expense {
-  id       Int            @id @default(autoincrement())
-  name     String
-  isEntry  Boolean
-  isFixed  Boolean
-  value    Float
-  category CategoryExpense[]
-  months   MonthExpense[]
+  id             Int               @id @default(autoincrement())
+  name           String
+  isEntry        Boolean
+  isFixed        Boolean
+  expiresInMonth Int
+  expiresInYear  Int
+  value          Float
+  category       CategoryExpense[]
+  months         MonthExpense[]
 }
 
 model Month {
@@ -49,22 +51,23 @@ model Month {
 }
 
 model MonthExpense {
-  id        Int     @id @default(autoincrement())
   expense   Expense @relation(fields: [expenseId], references: [id])
-  expenseId Int     @unique
+  expenseId Int 
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
+
+  @@id([expenseId, monthId])
 }
 
 model CategoryExpense {
-  id        Int     @id @default(autoincrement())
-  expense   Expense? @relation(fields: [expenseId], references: [id])
-  expenseId Int?     @unique
-  category     Category   @relation(fields: [categoryName], references: [name])
-  categoryName  String
+  id           Int      @id @default(autoincrement())
+  expense      Expense? @relation(fields: [expenseId], references: [id])
+  expenseId    Int?     @unique
+  category     Category @relation(fields: [categoryName], references: [name])
+  categoryName String
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int

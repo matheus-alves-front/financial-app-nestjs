@@ -31,7 +31,7 @@ export class ExpensesController {
     await this.relation.addExpenseToActualMonth(expenseCreation, profileIdNumber, monthId)
     await this.relation.addCategoryRelation(profileIdNumber, createExpense.category, expenseCreation)
 
-    const expenses = await this.expensesService.findAll(profileIdNumber)
+    const expenses = await this.expensesService.findAllActualMonthExpense(profileIdNumber, monthId)
 
     await this.expensesCalcService.updateMonthRepository(expenses, monthId)
 
@@ -39,10 +39,12 @@ export class ExpensesController {
   }
 
   @Get()
-  findAll(@Param('profileId') profileId: string) {
+  async findAll(@Param('profileId') profileId: string) {
     const profileIdNumber = Number(profileId)
 
-    return this.expensesService.findAll(profileIdNumber);
+    await this.monthService.createMonth(profileIdNumber)
+
+    return await this.expensesService.findAll(profileIdNumber);
   }
 
   @Get('/:id')
@@ -68,7 +70,7 @@ export class ExpensesController {
 
     const {id: monthId} = await this.monthService.createMonth(profileIdNumber)
 
-    const expenses = await this.expensesService.findAll(profileIdNumber)
+    const expenses = await this.expensesService.findAllActualMonthExpense(profileIdNumber, monthId)
 
     await this.expensesCalcService.updateMonthRepository(expenses, monthId)
 
@@ -88,7 +90,7 @@ export class ExpensesController {
     
     await this.expensesService.remove(idNumber) 
 
-    const expenses = await this.expensesService.findAll(profileIdNumber)
+    const expenses = await this.expensesService.findAllActualMonthExpense(profileIdNumber, monthId)
 
     if (!expenses.length) {
       await this.monthService.deleteMonth(monthId)
