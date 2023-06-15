@@ -39,10 +39,12 @@ export class ExpensesController {
   }
 
   @Get()
-  findAll(@Param('profileId') profileId: string) {
+  async findAll(@Param('profileId') profileId: string) {
     const profileIdNumber = Number(profileId)
 
-    return this.expensesService.findAll(profileIdNumber);
+    await this.monthService.createMonth(profileIdNumber)
+
+    return await this.expensesService.findAll(profileIdNumber);
   }
 
   @Get('/:id')

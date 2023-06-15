@@ -14,10 +14,8 @@ export class MonthsService {
   async createMonth(profileId: number) {
     const monthId = await this.prismaRelations.findMonthIdsByProfile(profileId)
 
-    const {year} = this.dateService.getDate()
+    const {year, month} = this.dateService.getDate()
 
-    const month = 10
-    
     if (!monthId) {
       return await this.prisma.month.create({
           data: {
@@ -57,11 +55,23 @@ export class MonthsService {
           totalAmountLeft: 0
         }
       })
+
+      const { 
+        id: newMonthId,
+        month: newMonthDate,
+        year: newMonthYear 
+      } = newActualMonth
+
+      const actualDate = {
+        month: newMonthDate,
+        year: newMonthYear
+      }
       
       const fixedExpensesToadd = await this.prismaRelations.getFixedMonthExpensesToAddNewMonth(
         profileId,
         monthId,
-        newActualMonth.id
+        newMonthId,
+        actualDate
       )
 
       await this.prismaRelations.addFixedMonthExpensesToNewMonth(fixedExpensesToadd)

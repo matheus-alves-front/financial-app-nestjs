@@ -24,13 +24,22 @@ export class PrismaRelations {
     return newMonthExpense
   }
 
-  async getFixedMonthExpensesToAddNewMonth(profileId: number, monthId: number, newMonthId: number) {
+  async getFixedMonthExpensesToAddNewMonth(
+    profileId: number, 
+    monthId: number, 
+    newMonthId: number,
+    actualDate: {
+      month: number,
+      year: number
+    }
+  ) {
     const monthExpenses = await this.prisma.monthExpense.findMany({
       where: {
         monthId
       },
       select: {
-        expense: true
+        expense: true,
+        month: true
       },
       distinct: ['expenseId']
     })
@@ -39,7 +48,11 @@ export class PrismaRelations {
 
     if (monthExpenses.length > 0) {
       for (let i = 0; i < monthExpenses.length; i++) {
-        if (monthExpenses[i].expense.isFixed) {
+        if (
+          monthExpenses[i].expense.isFixed &&
+          monthExpenses[i].expense.expiresInMonth >= actualDate.month && 
+          monthExpenses[i].expense.expiresInYear >= actualDate.year
+        ) {
           const expenseId = monthExpenses[i].expense.id
           const monthExpensesFormat = {
             expenseId,
@@ -56,6 +69,10 @@ export class PrismaRelations {
   }
 
   async addFixedMonthExpensesToNewMonth(monthExpensesArray: Omit<MonthExpense, 'id'>[]) {
+    if (monthExpensesArray.length < 1) {
+      return
+    }
+
     const resolveLoopCreationMonthExpense = monthExpensesArray.map(async (monthExpense) => {
       await this.prisma.monthExpense.create({
         data: monthExpense
@@ -112,23 +129,4 @@ export class PrismaRelations {
 
     return monthExpense
   }
-
-  // async removeExpenseToMonth(expenseCreated: Expense): Promise<MonthExpense> {
-  //   const {id: monthId} = await this.prisma.month.findFirst({
-  //     orderBy: {
-  //       id: 'desc'
-  //     }
-  //   })
-
-  //   const {id: expenseId} = expenseCreated
-
-  //   const newMonthExpense = await this.prisma.monthExpense.create({
-  //     data: {
-  //       expense: { connect: { id: expenseId } },
-  //       month: { connect: { id: monthId } },
-  //     },
-  //   });
-
-  //   return newMonthExpense
-  // }
 }
