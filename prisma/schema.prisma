@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Profile {
@@ -21,7 +22,7 @@ model Profile {
 
 model Category {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  name String
 
   categoryExpense CategoryExpense[]
 }
@@ -52,7 +53,7 @@ model Month {
 
 model MonthExpense {
   expense   Expense @relation(fields: [expenseId], references: [id])
-  expenseId Int 
+  expenseId Int
   month     Month   @relation(fields: [monthId], references: [id])
   monthId   Int
 
@@ -60,15 +61,22 @@ model MonthExpense {
   profileId Int
 
   @@id([expenseId, monthId])
+  @@index([expenseId])
+  @@index([monthId])
+  @@index([profileId])
 }
 
 model CategoryExpense {
-  id           Int      @id @default(autoincrement())
-  expense      Expense? @relation(fields: [expenseId], references: [id])
-  expenseId    Int?     @unique
-  category     Category @relation(fields: [categoryName], references: [name])
-  categoryName String
+  id         Int      @id @default(autoincrement())
+  expense    Expense? @relation(fields: [expenseId], references: [id])
+  expenseId  Int?     @unique
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId Int
+
+  @@index([categoryId])
+  @@index([expenseId])
+  @@index([profileId])
 }

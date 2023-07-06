@@ -34,14 +34,15 @@ export class CategoryController {
     return categories
   }
 
-  @Get('/name/:categoryName')
+  @Get('/name/:categoryId')
   async findUniqueCategory(
     @Param('profileId') profileId: string,
-    @Param('categoryName') categoryName: string
+    @Param('categoryId') categoryId: string
   ) {
     const profileIdNumber = Number(profileId)
-
-    const category = await this.categoryService.findUniqueCategory(profileIdNumber, categoryName)
+    const categoryIdNumber = Number(categoryId)
+    
+    const category = await this.categoryService.findUniqueCategory(profileIdNumber, categoryIdNumber)
     
     return category || {message: 'Essa categoria não existe!'}
   }
@@ -54,31 +55,35 @@ export class CategoryController {
     return categoriesWithProducts
   }
 
-  @Get('/name/:categoryName/expenses')
+  @Get('/name/:categoryId/expenses')
   async findUniqueCategoryWithExpenses(
     @Param('profileId') profileId: string,
-    @Param('categoryName') categoryName: string
+    @Param('categoryId') categoryId: string
   ) {
     const profileIdNumber = Number(profileId)
+    const categoryIdNumber = Number(categoryId)
 
-    const category = await this.categoryService.findUniqueCategoryWithExpenses(profileIdNumber, categoryName)
+    const category = await this.categoryService.findUniqueCategoryWithExpenses(profileIdNumber, categoryIdNumber)
     
     return category || {message: 'Essa categoria não existe!'}
   }
 
-  @Delete('/:categoryName')
+  @Delete('/:categoryId')
   async deleteCategory(
     @Param('profileId') profileId: string,
-    @Param('categoryName') categoryName: string
+    @Param('categoryId') categoryId: string
   ) {
     const profileIdNumber = Number(profileId)
+    const categoryIdNumber = Number(categoryId)
 
-    const categoryDeleted = await this.categoryService.deleteCategory(profileIdNumber, categoryName)
+    const categoryDeleted = await this.categoryService.deleteCategory(profileIdNumber, categoryIdNumber)
 
     if (categoryDeleted) {
-      return { message: `Categoria ${categoryName} deletado`}
+      return { message: `Categoria ${categoryIdNumber} deletado`}
     } else {
-      return { message: `Não é possivel excluir uma categoria com gastos relacionados a ela. Por favor remova todos os gastos relacionados a esta categoria`}
+      return { message: 
+        `Categoria Não existe ou Não é possivel excluir uma categoria com gastos relacionados a ela. Por favor remova todos os gastos relacionados a esta categoria`
+      }
     }
   }
 }
